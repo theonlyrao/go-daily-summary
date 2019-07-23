@@ -1,9 +1,11 @@
 package main
 
-//import "github.com/dghubble/go-twitter/twitter"
 import (
 	"encoding/json"
 	"fmt"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"	
+	"github.com/dghubble/go-twitter/twitter"	
 	"io/ioutil"
 	"os"	
 )
@@ -24,6 +26,31 @@ func ReadSecrets() Secrets {
 
 func GetLatestTweet() string {
 	var secrets Secrets = ReadSecrets()
-	fmt.Println(secrets)
-	return ""
+
+	config := &clientcredentials.Config{
+		ClientID:     secrets.ApiKey,
+		ClientSecret: secrets.ApiSecretKey,
+		TokenURL:     "https://api.twitter.com/oauth2/token",
+	}
+
+	httpClient := config.Client(oauth2.NoContext)	
+
+	client := twitter.NewClient(httpClient)
+
+	user, resp, err := client.Users.Show(&twitter.UserShowParams{
+		ScreenName: "realDonaldTrump",
+	})
+
+	if resp.StatusCode == 200 {
+		fmt.Println("Pres. Trump says:")
+		fmt.Println(user.Status.Text)
+		fmt.Println(user.Status.CreatedAt)
+		return user.Status.Text
+	} else {
+		fmt.Println("could not get last tweet!")
+		fmt.Println("response: " + resp.Status)
+		fmt.Println("error: " + err.Error())
+		return user.Status.Text
+	}
+
 }
