@@ -24,7 +24,7 @@ type WeatherSummary struct {
 	Summary string
 }
 
-func GetWeather() (current * WeatherSummary, later * WeatherSummary) {
+func GetWeather() (current, later * WeatherSummary) {
 	client := &http.Client {
 		Timeout: time.Second * 10,
 	}

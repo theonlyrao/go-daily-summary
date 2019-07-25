@@ -5,9 +5,9 @@ import (
 )
 
 func TestGetsTrumpsLatestTweet(t * testing.T) {
-	result := GetLatestTweet()
+	tweet, _ := GetLatestTweet()
 
-	if len(result) == 0 {
+	if tweet == "" {
 		t.Errorf("Retrieved tweet is empty")
 	}
 }

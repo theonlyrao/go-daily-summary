@@ -24,7 +24,7 @@ func ReadSecrets() Secrets {
 	return secrets
 }
 
-func GetLatestTweet() string {
+func GetLatestTweet() (string, string) {
 	var secrets Secrets = ReadSecrets()
 
 	config := &clientcredentials.Config{
@@ -42,15 +42,12 @@ func GetLatestTweet() string {
 	})
 
 	if resp.StatusCode == 200 {
-		fmt.Println("Pres. Trump says:")
-		fmt.Println(user.Status.Text)
-		fmt.Println(user.Status.CreatedAt)
-		return user.Status.Text
+		return user.Status.Text, user.Status.CreatedAt
 	} else {
 		fmt.Println("could not get last tweet!")
 		fmt.Println("response: " + resp.Status)
 		fmt.Println("error: " + err.Error())
-		return user.Status.Text
+		return "", ""
 	}
 
 }

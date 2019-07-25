@@ -10,7 +10,9 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		GetLatestTweet()
+		tweet, time := GetLatestTweet()
+		fmt.Println("Pres. Trump says: " + tweet)
+		fmt.Println(time)
 		fmt.Println()
 		wg.Done()
 	} ()
