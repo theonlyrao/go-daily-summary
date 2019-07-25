@@ -17,9 +17,9 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		weather := GetWeather()
-		fmt.Println(weather.Summaries[0].Summary)
-		fmt.Println(weather.Summaries[1].Summary)
+		cur, lat := GetWeather()
+		fmt.Println(cur.Summary)
+		fmt.Println(lat.Summary)
 		fmt.Println()
 		wg.Done()
 	} ()

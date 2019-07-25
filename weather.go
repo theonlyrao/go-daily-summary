@@ -20,15 +20,11 @@ type WeatherPeriods struct {
 	DetailedForecast string
 }
 
-type WeatherSummaries struct {
-	Summaries [2]WeatherSummary
-}
-
 type WeatherSummary struct {
 	Summary string
 }
 
-func GetWeather() (* WeatherSummaries) {
+func GetWeather() (current * WeatherSummary, later * WeatherSummary) {
 	client := &http.Client {
 		Timeout: time.Second * 10,
 	}
@@ -39,7 +35,7 @@ func GetWeather() (* WeatherSummaries) {
 	
 	if err != nil {
 		fmt.Println("error: " + err.Error())
-		return nil
+		return nil, nil
 	}
 
 	defer resp.Body.Close()
@@ -47,15 +43,11 @@ func GetWeather() (* WeatherSummaries) {
 	weather := new(WeatherResponse)
 	json.NewDecoder(resp.Body).Decode(weather)	
 
-	summaries := new(WeatherSummaries)
-	current := new(WeatherSummary)
-	later := new(WeatherSummary)
+	current = new(WeatherSummary)
+	later = new(WeatherSummary)
 	
 	current.Summary = weather.Properties.Periods[0].Name + ": " + weather.Properties.Periods[0].DetailedForecast;
 	later.Summary = weather.Properties.Periods[1].Name + ": " + weather.Properties.Periods[1].DetailedForecast
 
-	summaries.Summaries[0] = *current
-	summaries.Summaries[1] = *later
-
-	return summaries
+	return current, later
 }
