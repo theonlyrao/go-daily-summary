@@ -20,7 +20,15 @@ type WeatherPeriods struct {
 	DetailedForecast string
 }
 
-func GetWeather() (* http.Response) {
+type WeatherSummaries struct {
+	Summaries [2]WeatherSummary
+}
+
+type WeatherSummary struct {
+	Summary string
+}
+
+func GetWeather() (* WeatherSummaries) {
 	client := &http.Client {
 		Timeout: time.Second * 10,
 	}
@@ -40,7 +48,17 @@ func GetWeather() (* http.Response) {
 	json.NewDecoder(resp.Body).Decode(weather)	
 
 	fmt.Println(weather.Properties.Periods[0].Name + ": " + weather.Properties.Periods[0].DetailedForecast)
-	fmt.Println(weather.Properties.Periods[1].Name + ": " + weather.Properties.Periods[1].DetailedForecast)	
+	fmt.Println(weather.Properties.Periods[1].Name + ": " + weather.Properties.Periods[1].DetailedForecast)
+
+	summaries := new(WeatherSummaries)
+	current := new(WeatherSummary)
+	later := new(WeatherSummary)
 	
-	return resp
+	current.Summary = weather.Properties.Periods[0].Name + ": " + weather.Properties.Periods[0].DetailedForecast;
+	later.Summary = weather.Properties.Periods[1].Name + ": " + weather.Properties.Periods[1].DetailedForecast
+
+	summaries.Summaries[0] = *current
+	summaries.Summaries[1] = *later
+
+	return summaries
 }
