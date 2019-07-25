@@ -47,9 +47,6 @@ func GetWeather() (* WeatherSummaries) {
 	weather := new(WeatherResponse)
 	json.NewDecoder(resp.Body).Decode(weather)	
 
-	fmt.Println(weather.Properties.Periods[0].Name + ": " + weather.Properties.Periods[0].DetailedForecast)
-	fmt.Println(weather.Properties.Periods[1].Name + ": " + weather.Properties.Periods[1].DetailedForecast)
-
 	summaries := new(WeatherSummaries)
 	current := new(WeatherSummary)
 	later := new(WeatherSummary)
