@@ -1,11 +1,24 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io/ioutil"	
 	"net/http"
 	"time"
 )
+
+type WeatherResponse struct {
+	Properties WeatherProperties
+}
+
+type WeatherProperties struct {
+	Periods []WeatherPeriods
+}
+
+type WeatherPeriods struct {
+	Name string
+	DetailedForecast string
+}
 
 func GetWeather() (* http.Response) {
 	client := &http.Client {
@@ -22,9 +35,12 @@ func GetWeather() (* http.Response) {
 	}
 
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	weather := string(body)
-	fmt.Println(weather)
 
+	weather := new(WeatherResponse)
+	json.NewDecoder(resp.Body).Decode(weather)	
+
+	fmt.Println(weather.Properties.Periods[0].Name + ": " + weather.Properties.Periods[0].DetailedForecast)
+	fmt.Println(weather.Properties.Periods[1].Name + ": " + weather.Properties.Periods[1].DetailedForecast)	
+	
 	return resp
 }
