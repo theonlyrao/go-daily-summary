@@ -2,40 +2,57 @@ package main
 
 import (
 	"fmt"
+	"sync"
 )
 
-func showLatestTweet(tweet, time chan string) {
+func showLatestTweet(twitter chan string) {
 	w, i := GetLatestTweet()
-	tweet <- w
-	time <- i
+	twitter <- w
+	twitter <- i
+	close(twitter)
 }
 
-func showWeather(current, later chan string) {
+func showWeather(weather chan string) {
 	c, l := GetWeather()
-	current <- c.Summary
-	later <- l.Summary
+	weather <- c.Summary
+	weather <- l.Summary
+	close(weather)
+}
+
+func merge(cs ...<-chan string) <-chan string {
+    var wg sync.WaitGroup
+    out := make(chan string)
+
+    // Start an output goroutine for each input channel in cs.  output
+    // copies values from c to out until c is closed, then calls wg.Done.
+    output := func(c <-chan string) {
+        for n := range c {
+            out <- n
+        }
+        wg.Done()
+    }
+    wg.Add(len(cs))
+    for _, c := range cs {
+        go output(c)
+    }
+
+    // Start a goroutine to close out once all the output goroutines are
+    // done.  This must start after the wg.Add call.
+    go func() {
+        wg.Wait()
+        close(out)
+    }()
+    return out
 }
 
 func main() {
-	current := make(chan string)
-	later := make(chan string)
+	weather := make(chan string)
+	twitter := make(chan string)
 
-	tweet := make(chan string)
-	time := make(chan string)
-
-	go showLatestTweet(tweet, time)
-	go showWeather(current, later)		
+	go showWeather(twitter)
+	go showLatestTweet(weather)
 	
-	for x := 0; x < 4; x++ {
-		select {
-		case w := <- tweet:
-			fmt.Println(w)
-		case i := <- time:
-			fmt.Println(i)
-		case c := <- current:
-			fmt.Println(c)
-		case l := <- later:
-			fmt.Println(l)
-		}
+	for output := range merge(weather, twitter) {
+		fmt.Println(output)
 	}
 }
